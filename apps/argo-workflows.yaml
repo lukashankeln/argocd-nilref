@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-workflows-2
+  namespace: argocd
+  finalizers:
+    - resources-finalizers.argocd.argoproj.io
+spec:
+  project: default
+  revisionHistoryLimit: 1
+  destination:
+    name: in-cluster
+    namespace: argo-workflows
+  syncPolicy:
+    automated:
+      prune: true
+      allowEmpty: true
+  source:
+    # Repository: https://github.com/argoproj/argo-helm/tree/main/charts/argo-workflows
+    # Artifacthub: https://artifacthub.io/packages/helm/argo/argo-workflows
+    # Values: https://github.com/argoproj/argo-helm/blob/main/charts/argo-workflows/values.yaml
+    repoURL: https://argoproj.github.io/argo-helm
+    targetRevision: 0.45.28
+    chart: argo-workflows
+    helm:
+      valuesObject:
+        workflow: {}
