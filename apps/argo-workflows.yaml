@@ -24,4 +24,60 @@ spec:
     chart: argo-workflows
     helm:
       valuesObject:
-        workflow: {}
+        workflow:
+          serviceAccount:
+            create: true
+        crds:
+          keep: false
+        controller:
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          volumes:
+            - name: tmp
+              emptyDir: {}
+          resources:
+            requests:
+              cpu: 12m
+              memory: 70M
+          podSecurityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            seccompProfile:
+              type: RuntimeDefault
+        executor:
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+        server:
+          extraArgs:
+            - --auth-mode=server
+          resources:
+            requests:
+              cpu: 12m
+              memory: 50M
+          podSecurityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+          ingress:
+            enabled: true
+            ingressClassName: nginx
+            annotations:
+              cert-manager.io/cluster-issuer: letsencrypt-dns01-issuer
+            hosts:
+              - argo-workflows.hankeln.work
+            tls:
+              - secretName: argo-workflows-cert
+                hosts:
+                  - argo-workflows.hankeln.work
